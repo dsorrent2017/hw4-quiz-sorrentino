@@ -8,7 +8,8 @@ var questions = [
     title: "What animal makes a meow sound?",
     choices: ["Dog", "Cat", "Snake", "Fish"],
     answer: "Cat",
-  },
+  }
+  /*****
   {
     title: "What animal makes a hissing sound?",
     choices: ["Dog", "Cat", "Snake", "Fish"],
@@ -19,6 +20,7 @@ var questions = [
     choices: ["Dog", "Cat", "Snake", "Fish"],
     answer: "Fish",
   },
+   
   {
     title: "What animal is descended from wolves?",
     choices: ["Dog", "Cat", "Snake", "Fish"],
@@ -49,6 +51,7 @@ var questions = [
     choices: ["Dog", "Cat", "Snake", "Fish"],
     answer: "Fish",
   }
+  ****/
 ];
 
 const numberOfQuestions = questions.length;
@@ -70,36 +73,37 @@ var questionText = document.createElement("p");
 
 
 //global variables
-var timer = 75; //75 minutes totimeout
+var timer =  30;  //# of seconds
 var index = 0;
 
 //functions
 function openingPage() {
- 
+  
   startText.textContent = "Welcome to the Quiz";
   startButton.textContent = "Start Quiz";
   containerEl.appendChild(startText);
   containerEl.appendChild(startButton);
 }
-//Credit to https://stackoverflow.com/questions/17745292/how-to-retrieve-all-localstorage-items-without-knowing-the-keys-in-advance
-function allStorage() {
+
+function getAllScores() {
   debugger;
   var initialsAndScores = [];
   var j=0;
   for (var i = 0; i<localStorage.length; i++) {
-      var initialAndScore = localStorage.getItem(localStorage.key(i)).split('_');
+      var initialAndScore = localStorage.getItem(localStorage.key(i));
       
-      if(initialAndScore != null){
-        initialsAndScores[j++] = initialAndScore[0];
+      if(initialAndScore != null){localStorage.key(i) + ":" + initialAndScore;
       }
   }
   return initialsAndScores;
 }
 
 function displayScores(initialsAndScores){
+  debugger;
   for(var i=0; i<initialsAndScores.length; i++){
     var score = initialsAndScores[i];
-    score.appendChild("<p>" + score + "</p>");
+    scores.textContent = "<p>" + score + "</p>";
+   
     //TODO: determine and display highest score
   }
 
@@ -108,9 +112,9 @@ let numberOfQuizzes = 2; //TODO let user select number of quizzes to play
 let quizCounter = 0;
 //function that shows the question and starts the timer
 function startQuiz() {
-  for(;quizCounter < numberOfQuizzes; quizCounter++){
+ // for(;quizCounter < numberOfQuizzes; quizCounter++){
     numberCorrect = 0;
-    var initialsAndScores = allStorage();
+    var initialsAndScores = getAllScores();
 
     if( initialsAndScores.length != 0){
       debugger;
@@ -126,20 +130,23 @@ function startQuiz() {
     //store to shared memory
     //After the game ends, the user can save their initials and score to a highscores view using local storage
     
-    //TODO: replace prompt with Modal
-    var initials = prompt("Your score is " + numberCorrect + " out of " + numberOfQuestions +
-      "\nEnter your initials for storage of your score!");
+   
+  //}
+}
 
-    if(initials == null){
-      initials = "_unknown player"; //prepend underscore to initials
-    }else{
-      initials = "_" + initials; 
-    }
+function saveToLocalStorage(){
+   //TODO: replace prompt with Modal
+   debugger;
 
-    debugger;
+   var initials = prompt("Your score is " + numberCorrect + " out of " + numberOfQuestions +
+     "\nEnter your initials for storage of your score!");
 
-    localsStorage.setItem(initials,numberCorrect);
-  }
+   if(initials == null){
+     initials = "_unknown player"; //prepend underscore to initials
+   }
+
+
+   localStorage.setItem(initials,numberCorrect);
 }
 
 function showTimer() {
@@ -151,7 +158,11 @@ function showTimer() {
     --timer;
     timerDisplay.textContent = timer;
     if (timer === 0) {
-      clearInterval(timeInterval);
+     
+      clearInterval(timeInterval);//
+
+      saveToLocalStorage();
+
     }
   }, 1000);
   //inside setInterval function:
@@ -162,8 +173,12 @@ function showTimer() {
 //function that handles and displays the next quextion
 function nextQuestion() {
  
+  if(index >= questions.length){ //done
+    return;
+  }
   //declare a variable to store current question. Assign the current question.
   var currentQuestion = questions[index];
+
   containerEl.textContent = "";
   questionText.textContent = currentQuestion.title;
   containerEl.appendChild(questionText);
@@ -189,11 +204,6 @@ function nextQuestion() {
   //append div element to the container
   containerEl.appendChild(answersDiv);
 
-  clearInterval(timeInterval); //restart game
-  timer = 0;
-  
-
-
 }
 
 //function to check the answer and display to following question
@@ -209,8 +219,13 @@ function checkAnswer(e) {
         
         results.textContent = "Wrong!";
     }
+
+
+    if(index < questions.length){
+      nextQuestion();
+    }
     ++index;
-    nextQuestion();
+   
   }
 }
 
